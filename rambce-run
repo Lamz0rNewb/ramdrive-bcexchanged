@@ -1,0 +1,88 @@
+#!/bin/bash
+#
+# This script only works if you have renamed (moved)
+# your wallet files from
+#       ~/.nu/walletS.dat -> ~/.nu/walletS.dat.ramdisk
+#       ~/.nu/walletB.dat -> ~/.nu/walletB.dat.ramdisk
+#
+# It has some safety measures, but handle it with care
+# Be sure to have backups of your wallet files before you continue!
+#
+#
+
+# If all goes well you only need to change the settings in the following few lines
+application_dir="/home/pi/.bcexchange/"
+application_pid="bcexchange.pid"
+application_name="bcexchanged"
+wallet01_unit="C"
+wallet02_unit="8"
+ramdisk="/ramdisk/"
+
+
+# From here everything should work automatically - at least if 2 wallet files are available
+# As this is a preparation for bcexchanged on ramdisk the single wallet version will follow later
+wallet01_orig="wallet$wallet01_unit.dat"
+wallet01_ramdisk="wallet$wallet01_unit.dat.ramdisk"
+wallet01_ramdisk_bak="wallet$wallet01_unit.dat.ramdisk.bak"
+
+wallet02_orig="wallet$wallet02_unit.dat"
+wallet02_ramdisk="wallet$wallet02_unit.dat.ramdisk"
+wallet02_ramdisk_bak="wallet$wallet02_unit.dat.ramdisk.bak"
+
+
+# check for $application_name
+if [ -f $application_dir$application_pid ]; then
+        pid=$(cat $application_dir$application_pid)
+                if [ -d /proc/$pid ]; then
+                echo "$application_name is running. Exiting script"
+                exit 1
+                fi
+fi
+
+# last time to stop script
+read -p "Change the manes of your wallets from $wallet01_orig/$wallet02_orig to $wallet01_ramdisk/$wallet02_ramdisk BEFORE continuing. Press [Enter] to continue or CTRL+C to abort"
+
+# check for wallet symlink
+if  [ -h $application_dir$wallet01_orig ]; then
+        rm $application_dir$wallet01_orig
+else
+	if  [ -f $application_dir$wallet01_orig ]; then
+                echo "ERROR: $application_dir$wallet01 exists; please rename to $wallet01_ramdisk"
+                exit 1
+        fi
+fi
+
+# check for wallet symlink
+if  [ -h $application_dir$wallet02_orig ]; then
+        rm $application_dir$wallet02_orig
+else
+        if  [ -f $application_dir$wallet02_orig ]; then
+                echo "ERROR: $application_dir$wallet02 exists; please rename to $wallet02_ramdisk"
+                exit 1
+        fi
+fi
+
+if [ -f $application_dir$wallet01_ramdisk_bak ]; then
+        mv $application_dir$wallet01_ramdisk_bak  $application_dir$wallet01_ramdisk
+fi
+
+if [ -f $application_dir$wallet02_ramdisk_bak ]; then
+        mv $application_dir$wallet02_ramdisk_bak $application_dir$wallet02_ramdisk
+fi
+
+cp $application_dir$wallet01_ramdisk $ramdisk$wallet01_orig
+cp $application_dir$wallet02_ramdisk $ramdisk$wallet02_orig
+
+if [ -f $ramdisk$wallet01_orig ]; then
+        ln -s $ramdisk$wallet01_orig $application_dir$wallet01_orig
+        if [ -f $ramdisk$wallet02_orig ]; then
+                echo "starting $application_name with wallets on $ramdisk"
+                ln -s  $ramdisk$wallet02_orig $application_dir$wallet02_orig
+                $application_name
+        else
+                echo "$ramdisk$wallet02_orig doesn't exist"
+        fi
+else
+        echo "$ramdisk$wallet02_orig doesn't exist"
+fi
+

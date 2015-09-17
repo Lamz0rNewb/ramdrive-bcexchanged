@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# This script is intended to stop nud and write
+# the wallet files from ramdrive back to the application folder
+#
+# It has some safety measures, but handle it with care
+# Be sure to have backups of your wallet files before you continue!
+#
+#
+
+application_dir="/home/pi/.bcexchange/"
+application_name="bcexchanged"
+wallet01_unit="C"
+wallet02_unit="8"
+
+wallet01_ramdisk="wallet$wallet01_unit.dat.ramdisk"
+wallet01_ramdisk_bak="wallet$wallet01_unit.dat.ramdisk.bak"
+wallet01_ramdisk_bak2="wallet$wallet01_unit.dat.ramdisk.bak2"
+
+wallet02_ramdisk="wallet$wallet02_unit.dat.ramdisk"
+wallet02_ramdisk_bak="wallet$wallet02_unit.dat.ramdisk.bak"
+wallet02_ramdisk_bak2="wallet$wallet02_unit.dat.ramdisk.bak2"
+
+if [ -f $application_dir$wallet01_ramdisk_bak ]; then
+        mv $application_dir$wallet01_ramdisk_bak $application_dir$wallet01_ramdisk_bak2
+fi
+
+if [ -f $application_dir$wallet02_ramdisk_bak ]; then
+        mv $application_dir$wallet02_ramdisk_bak $application_dir$wallet02_ramdisk_bak2
+fi
+
+echo "writing $application_dir$wallet01_ramdisk"
+echo $application_name -unit=$wallet01_unit backupwallet $application_dir$wallet01_ramdisk_bak
+$application_name -unit=$wallet01_unit backupwallet $application_dir$wallet01_ramdisk_bak
+
+echo "writing $application_dir$wallet02_ramdisk"
+echo $application_name -unit=$wallet02_unit backupwallet $application_dir$wallet02_ramdisk_bak
+$application_name -unit=$wallet02_unit backupwallet $application_dir$wallet02_ramdisk_bak
+
+sleep 1
+$application_name stop

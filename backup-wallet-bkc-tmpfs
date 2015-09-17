@@ -1,0 +1,18 @@
+#!/bin/bash
+cwd=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+PATH=$cwd:$PATH
+
+application_dir="/home/pi/.bcexchange/"
+application_name="bcexchanged"
+wallet01_unit="C"
+
+wallet01_bak="$application_dir/wallet$wallet01_unit.dat.ramdisk.bak"
+wallet01_bak2="$application_dir/wallet$wallet01_unit.dat.ramdisk.bak2"
+
+if [ -f $wallet01_bak ]; then
+        mv $wallet01_bak $wallet01_bak2
+        $application_name -unit=$wallet01_unit backupwallet $wallet01_bak
+else
+        $application_name -unit=$wallet01_unit backupwallet $wallet01_bak
+
+fi
