@@ -39,9 +39,9 @@ The entry in /etc/fstab requires a system restart to become active. If you don't
 
 `crontab -e`
 
-`00 0,4,8,12,16,20 * * * [path-to-"ramdrive-nud"]/backup-wallet-bks-tmpfs`
+`00 0,4,8,12,16,20 * * * [path-to-"ramdrive-bcexchanged"]/backup-wallet-bks-tmpfs`
 
-`00 0,4,8,12,16,18 * * * [path-to-"ramdrive-nud"]/backup-wallet-bkc-tmpfs`
+`00 0,4,8,12,16,18 * * * [path-to-"ramdrive-bcexchanged"]/backup-wallet-bkc-tmpfs`
 
 
 # Run bcexchanged with wallets on ramdrive
